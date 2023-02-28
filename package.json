@@ -1,0 +1,25 @@
+{
+  "name": "escrow",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "size": "npx hardhat size-contracts"
+  },
+  "keywords": [],
+  "author": "cladjules",
+  "license": "UNLICENSED",
+  "private": true,
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.7",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@openzeppelin/contracts": "^4.6.0",
+    "chai": "^4.3.6",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.12.4",
+    "hardhat-contract-sizer": "^2.7.0",
+    "prettier": "^2.8.1",
+    "prettier-plugin-solidity": "^1.1.1"
+  }
+}
