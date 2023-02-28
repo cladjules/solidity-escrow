@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
 /**
@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/utils/Address.sol";
  */
 contract QuasiEscrow is ReentrancyGuard, Ownable {
   using Address for address payable;
+  using SafeMath for uint256;
 
   mapping(address => Deposit) private _deposits;
 
@@ -90,9 +91,13 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
 
     require(amount > 0, "Amount should be greater than zero");
 
-    uint256 amountAvailable = (((block.timestamp - payeeDeposit.date) /
-      payeeDeposit.timePeriod) * payeeDeposit.periodAmount) -
-      payeeDeposit.withdrawnAmount;
+    // SafeMath is good, but increases gas cost, it's a tradeoff to discuss if needed
+    uint256 amountAvailable = block
+      .timestamp
+      .sub(payeeDeposit.date)
+      .div(payeeDeposit.timePeriod)
+      .mul(payeeDeposit.periodAmount)
+      .sub(payeeDeposit.withdrawnAmount);
 
     require(amountAvailable > 0, "No funds available for withdrawal");
     require(amountAvailable >= amount, "Amount is greater than available");
