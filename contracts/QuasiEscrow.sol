@@ -35,7 +35,7 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
    */
   function depositOf(
     address payee
-  ) public view onlyOwner returns (Deposit memory) {
+  ) external view onlyOwner returns (Deposit memory) {
     return _deposits[payee];
   }
 
@@ -51,7 +51,7 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
     address payee,
     uint96 timePeriod,
     uint256 periodAmount
-  ) public payable {
+  ) external payable {
     uint256 amount = msg.value;
 
     require(amount > 0, "Amount should be greater than zero");
@@ -81,7 +81,7 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
    *
    * Emits a {Withdrawn} event.
    */
-  function withdraw(uint256 amount) public nonReentrant {
+  function withdraw(uint256 amount) external nonReentrant {
     Deposit storage payeeDeposit = _deposits[msg.sender];
 
     require(
