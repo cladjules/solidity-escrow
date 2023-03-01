@@ -30,7 +30,7 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
   event Withdrawn(address indexed payee, uint256 amount);
 
   /**
-   * @dev Returns the details regarding the deposit, restricted to owner only
+   * @notice Returns the details regarding the deposit, restricted to owner only
    * @param payee The destination address of the funds.
    */
   function depositOf(
@@ -40,7 +40,7 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
   }
 
   /**
-   * @dev Stores the details regarding the deposit
+   * @notice Stores the details regarding the deposit
    * @param payee The destination address of the funds.
    * @param timePeriod The timePeriod in seconds for a single withdraw to be allowed
    * @param periodAmount The amount of coins that can be withdran per period
@@ -74,9 +74,7 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
   }
 
   /**
-   * @dev Withdraw accumulated balance for a payee, forwarding all gas to the
-   * recipient.
-   *
+   * @notice Withdraw accumulated balance for a payee, forwarding all gas to the recipient.
    * @param amount The amount to be withdrawn.
    *
    * Emits a {Withdrawn} event.
