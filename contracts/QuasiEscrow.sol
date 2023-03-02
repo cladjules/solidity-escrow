@@ -51,13 +51,13 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
     address payee,
     uint96 timePeriod,
     uint256 periodAmount
-  ) external payable {
+  ) external payable nonReentrant {
     uint256 amount = msg.value;
 
     require(amount > 0, "Amount should be greater than zero");
 
     require(
-      _deposits[payee].totalAmount == 0,
+      _deposits[payee].totalAmount <= 0,
       "There are already funds deposited for this payee"
     );
 
@@ -90,9 +90,7 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
     require(amount > 0, "Amount should be greater than zero");
 
     // SafeMath is good, but increases gas cost, it's a tradeoff to discuss if needed
-    uint256 amountAvailable = block
-      .timestamp
-      .sub(payeeDeposit.date)
+    uint256 amountAvailable = (block.timestamp.sub(payeeDeposit.date))
       .div(payeeDeposit.timePeriod)
       .mul(payeeDeposit.periodAmount)
       .sub(payeeDeposit.withdrawnAmount);
@@ -102,11 +100,11 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
 
     payeeDeposit.withdrawnAmount += amount;
 
-    payable(msg.sender).sendValue(amount);
-
     if (payeeDeposit.withdrawnAmount == payeeDeposit.totalAmount) {
       delete _deposits[payeeDeposit.payee];
     }
+
+    payable(msg.sender).sendValue(amount);
 
     emit Withdrawn(payeeDeposit.payee, amount);
   }
