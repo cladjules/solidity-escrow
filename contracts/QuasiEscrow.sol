@@ -83,7 +83,6 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
    */
   function withdraw(uint64 amount) external nonReentrant {
     Deposit memory payeeDeposit = _deposits[msg.sender];
-    uint64 withdrawnAmount = payeeDeposit.withdrawnAmount;
 
     require(
       payeeDeposit.totalAmount > 0,
@@ -101,12 +100,12 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
     require(amountAvailable > 0, "No funds available for withdrawal");
     require(amountAvailable >= amount, "Amount is greater than available");
 
-    withdrawnAmount += amount;
+    payeeDeposit.withdrawnAmount += amount;
 
-    if (withdrawnAmount == payeeDeposit.totalAmount) {
+    if (payeeDeposit.withdrawnAmount == payeeDeposit.totalAmount) {
       delete _deposits[payeeDeposit.payee];
     } else {
-      _deposits[msg.sender].withdrawnAmount = withdrawnAmount;
+      _deposits[msg.sender].withdrawnAmount = payeeDeposit.withdrawnAmount;
     }
 
     payable(msg.sender).sendValue(amount);
