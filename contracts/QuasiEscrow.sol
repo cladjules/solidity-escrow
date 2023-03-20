@@ -18,12 +18,14 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
 
   // packed struct for storage optimization
   struct Deposit {
+    // 1st slot
     address payee; // 160/256 bits
     uint96 timePeriod; // 256/256 bits - in seconds
-    uint256 date; // timestamp
-    uint256 periodAmount; // in wei per period elapsed
-    uint256 totalAmount; // in wei
-    uint256 withdrawnAmount; // The total amount withdrawn so far
+    // 2nd slot
+    uint64 date; // timestamp
+    uint64 periodAmount; // in wei per period elapsed
+    uint64 totalAmount; // in wei
+    uint64 withdrawnAmount; // The total amount withdrawn so far
   }
 
   event Deposited(address indexed payee, uint256 amount);
@@ -50,9 +52,9 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
   function deposit(
     address payee,
     uint96 timePeriod,
-    uint256 periodAmount
+    uint64 periodAmount
   ) external payable nonReentrant {
-    uint256 amount = msg.value;
+    uint64 amount = uint64(msg.value);
 
     require(amount > 0, "Amount should be greater than zero");
 
@@ -64,7 +66,7 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
     _deposits[payee] = Deposit(
       payee,
       timePeriod,
-      block.timestamp,
+      uint64(block.timestamp),
       periodAmount,
       amount,
       0
@@ -79,8 +81,9 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
    *
    * Emits a {Withdrawn} event.
    */
-  function withdraw(uint256 amount) external nonReentrant {
-    Deposit storage payeeDeposit = _deposits[msg.sender];
+  function withdraw(uint64 amount) external nonReentrant {
+    Deposit memory payeeDeposit = _deposits[msg.sender];
+    uint64 withdrawnAmount = payeeDeposit.withdrawnAmount;
 
     require(
       payeeDeposit.totalAmount > 0,
@@ -98,10 +101,12 @@ contract QuasiEscrow is ReentrancyGuard, Ownable {
     require(amountAvailable > 0, "No funds available for withdrawal");
     require(amountAvailable >= amount, "Amount is greater than available");
 
-    payeeDeposit.withdrawnAmount += amount;
+    withdrawnAmount += amount;
 
-    if (payeeDeposit.withdrawnAmount == payeeDeposit.totalAmount) {
+    if (withdrawnAmount == payeeDeposit.totalAmount) {
       delete _deposits[payeeDeposit.payee];
+    } else {
+      _deposits[msg.sender].withdrawnAmount = withdrawnAmount;
     }
 
     payable(msg.sender).sendValue(amount);
